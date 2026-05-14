@@ -92,7 +92,7 @@
         <div class="logo-section">
           <div class="logo-container">
             <div class="logo-wrapper">
-              <img src="/logo2.jpg" alt="QMT Inventory and Sales Logo" class="company-logo" loading="eager" />
+              <img src="/logo2.jpg" alt="QMT Inventory and Sales Logo" class="company-logo" />
             </div>
             <div class="company-info">
               <p class="amharic-text">ቀለም ሜዳ ቴክኖሎጂስ</p>
@@ -138,16 +138,10 @@ const handleLogin = async () => {
   try {
     await authStore.login(form)
     successMessage.value = 'Login successful! Redirecting...'
-    
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 1000)
+    setTimeout(() => router.push('/dashboard'), 500)
   } catch (error) {
-    if (error.response?.data?.errors) {
-      errors.value = error.response.data.errors
-    } else {
-      errorMessage.value = error.response?.data?.message || 'Login failed. Please try again.'
-    }
+    errors.value = error.response?.data?.errors || {}
+    errorMessage.value = error.response?.data?.message || 'Login failed. Please try again.'
   } finally {
     loading.value = false
   }

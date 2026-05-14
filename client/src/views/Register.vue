@@ -1,14 +1,12 @@
 <template>
   <div class="register-container">
     <div class="register-card">
-      <!-- Logo Section -->
       <div class="logo-section">
         <img src="/logo2.jpg" alt="Logo" class="logo" />
         <h1 class="app-title">Create Account</h1>
         <p class="app-subtitle">Join us today</p>
       </div>
 
-      <!-- Register Form -->
       <form @submit.prevent="handleRegister" class="register-form">
         <div class="form-group">
           <label for="name" class="form-label">Full Name</label>
@@ -168,16 +166,10 @@ const handleRegister = async () => {
   try {
     await authStore.register(form)
     successMessage.value = 'Account created successfully! Redirecting...'
-    
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 1000)
+    setTimeout(() => router.push('/dashboard'), 500)
   } catch (error) {
-    if (error.response?.data?.errors) {
-      errors.value = error.response.data.errors
-    } else {
-      errorMessage.value = error.response?.data?.message || 'Registration failed. Please try again.'
-    }
+    errors.value = error.response?.data?.errors || {}
+    errorMessage.value = error.response?.data?.message || 'Registration failed. Please try again.'
   } finally {
     loading.value = false
   }

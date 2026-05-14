@@ -1,7 +1,3 @@
-<script setup>
-// Main app component with router
-</script>
-
 <template>
   <div id="app">
     <router-view />
