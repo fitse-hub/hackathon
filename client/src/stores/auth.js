@@ -28,8 +28,6 @@ export const useAuthStore = defineStore('auth', {
           this.user = response.data.user
           this.permissions = response.data.permissions
           this.isAuthenticated = true
-          
-          // Store the token in localStorage
           if (response.data.token) {
             localStorage.setItem('auth_token', response.data.token)
           }

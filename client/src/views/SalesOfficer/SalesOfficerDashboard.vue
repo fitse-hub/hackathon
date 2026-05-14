@@ -3,17 +3,40 @@
     <Sidebar />
     
     <main class="main-content">
-      <div class="dashboard-header">
-        <div>
-          <h1 class="page-title">Dashboard</h1>
-          <p class="page-subtitle">Welcome back, {{ user?.name }}!</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-primary" @click="goToNewSale">
-            <i class="fas fa-plus"></i>
-            New Sale
+      <div class="top-header">
+        <div class="header-left">
+          <button class="menu-toggle" @click="toggleMobileSidebar">
+            <i class="fas fa-bars"></i>
           </button>
+          <h2 class="role-title">Sales Officer</h2>
         </div>
+        <div class="header-right">
+          <button class="notification-btn" @click="showNotifications">
+            <i class="fas fa-bell"></i>
+            <span v-if="notificationCount > 0" class="notification-badge">{{ notificationCount }}</span>
+          </button>
+          <div class="profile-dropdown" @click="toggleProfileMenu">
+            <img src="/logo2.jpg" alt="User" class="profile-avatar" />
+            <span class="profile-name">{{ user?.name || 'User' }}</span>
+            <i class="fas fa-chevron-down"></i>
+            
+            <div v-if="showProfileMenu" class="dropdown-menu">
+              <div class="dropdown-header">
+                <p class="dropdown-name">{{ user?.name }}</p>
+                <p class="dropdown-email">{{ user?.email }}</p>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" @click="handleLogout">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-header">
+        <h1 class="page-title">Dashboard</h1>
       </div>
 
       <div class="stats-grid">
@@ -180,6 +203,8 @@ const router = useRouter()
 const authStore = useAuthStore()
 const loading = ref(true)
 const error = ref(null)
+const showProfileMenu = ref(false)
+const notificationCount = ref(3)
 
 const user = computed(() => authStore.user)
 
@@ -201,7 +226,26 @@ const pendingApprovals = computed(() => {
 
 onMounted(async () => {
   await fetchDashboardData()
+  document.addEventListener('click', closeProfileMenu)
 })
+
+const closeProfileMenu = (e) => {
+  if (!e.target.closest('.profile-dropdown')) {
+    showProfileMenu.value = false
+  }
+}
+
+const toggleProfileMenu = () => {
+  showProfileMenu.value = !showProfileMenu.value
+}
+
+const toggleMobileSidebar = () => {
+  // Mobile sidebar toggle logic
+}
+
+const showNotifications = () => {
+  alert('Notifications feature coming soon!')
+}
 
 const fetchDashboardData = async () => {
   loading.value = true
@@ -288,88 +332,227 @@ const getStockClass = (stock) => {
 }
 
 const goToNewSale = () => {
-  alert('New Sale page coming soon! Your backend friend needs to set up the products API first.')
+  router.push('/sales/new')
 }
 
 const viewSale = (id) => {
   alert(`View sale details for ID: ${id} - Page coming soon!`)
 }
+
+const handleLogout = async () => {
+  showProfileMenu.value = false
+  await authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+* {
+  font-family: 'Outfit', sans-serif;
+}
+
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background: #f9fafb;
+  background: #f5f5f5;
 }
 
 .main-content {
   flex: 1;
-  margin-left: 260px;
-  padding: 24px;
+  margin-left: 240px;
   transition: margin-left 0.3s ease;
 }
 
-.dashboard-header {
+.top-header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 4px 0;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.page-subtitle {
-  font-size: 14px;
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 20px;
   color: #6b7280;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.role-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
   margin: 0;
 }
 
-.header-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-primary {
+.header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: #1e3a8a;
-  color: white;
+  gap: 20px;
+}
+
+.notification-btn {
+  position: relative;
+  background: none;
   border: none;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 8px;
   border-radius: 8px;
-  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.notification-btn:hover {
+  background: #f3f4f6;
+  color: #1e3a8a;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
   font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.profile-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.btn-primary:hover {
-  background: #1e40af;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+.profile-dropdown:hover {
+  background: #f3f4f6;
+}
+
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.profile-dropdown i {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 240px;
+  z-index: 100;
+}
+
+.dropdown-header {
+  padding: 16px;
+}
+
+.dropdown-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.dropdown-email {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #f3f4f6;
+  color: #1e3a8a;
+}
+
+.dropdown-item i {
+  font-size: 16px;
+}
+
+.dashboard-header {
+  padding: 24px 32px 16px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  margin-bottom: 24px;
+  padding: 0 32px 24px;
 }
 
 .stat-card {
   background: white;
   border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  gap: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.2s;
 }
 
@@ -379,20 +562,21 @@ const viewSale = (id) => {
 }
 
 .stat-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 20px;
   color: white;
+  margin-bottom: 16px;
 }
 
-.stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #1e40af); }
-.stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
-.stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.stat-icon.blue { background: #1e3a8a; }
+.stat-icon.green { background: #10b981; }
+.stat-icon.orange { background: #f59e0b; }
+.stat-icon.purple { background: #8b5cf6; }
 
 .stat-content {
   flex: 1;
@@ -401,14 +585,16 @@ const viewSale = (id) => {
 .stat-label {
   font-size: 13px;
   color: #6b7280;
-  margin: 0 0 4px 0;
+  margin: 0 0 8px 0;
+  font-weight: 400;
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 4px 0;
+  line-height: 1;
 }
 
 .stat-change {
@@ -430,26 +616,26 @@ const viewSale = (id) => {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 20px;
-  margin-bottom: 24px;
+  padding: 0 32px 24px;
 }
 
 .card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
 .card-header {
-  padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #1f2937;
   margin: 0;
@@ -461,7 +647,7 @@ const viewSale = (id) => {
 .link {
   color: #1e3a8a;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -470,7 +656,7 @@ const viewSale = (id) => {
 }
 
 .card-body {
-  padding: 20px;
+  padding: 24px;
 }
 
 .loading {
@@ -498,6 +684,26 @@ const viewSale = (id) => {
 .empty-state p {
   margin: 0 0 16px 0;
   font-size: 14px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #f59e0b;
+  transform: translateY(-1px);
 }
 
 .sales-list {
@@ -697,6 +903,10 @@ const viewSale = (id) => {
   color: #92400e;
 }
 
+.low-stock-alerts {
+  margin: 0 32px 32px;
+}
+
 @media (max-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -706,17 +916,35 @@ const viewSale = (id) => {
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
-    padding: 16px;
+  }
+  
+  .menu-toggle {
+    display: block;
   }
   
   .stats-grid {
     grid-template-columns: 1fr;
+    padding: 0 16px 16px;
+  }
+  
+  .dashboard-grid {
+    padding: 0 16px 16px;
+  }
+  
+  .low-stock-alerts {
+    margin: 0 16px 16px;
+  }
+  
+  .top-header {
+    padding: 16px;
   }
   
   .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+    padding: 16px;
+  }
+  
+  .profile-name {
+    display: none;
   }
 }
 </style>

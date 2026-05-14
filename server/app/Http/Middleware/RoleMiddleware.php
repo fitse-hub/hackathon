@@ -8,21 +8,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * Usage in routes:  ->middleware('role:manager')
-     *                   ->middleware('role:manager,sales_officer')
-     *
-     * @param  Closure(Request): (Response)  $next
-     * @param  string  ...$roles  One or more allowed roles.
-     */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
-        // Must be authenticated (Sanctum guard should have already caught this,
-        // but we keep a safety check).
         if (! $user) {
             return response()->json([
                 'success' => false,
@@ -30,7 +19,6 @@ class RoleMiddleware
             ], 401);
         }
 
-        // Check if the user's role is among the allowed roles.
         if (! in_array($user->role, $roles, true)) {
             return response()->json([
                 'success'        => false,

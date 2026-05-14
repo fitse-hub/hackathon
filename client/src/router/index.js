@@ -23,12 +23,10 @@ const router = createRouter({
       name: 'dashboard',
       component: SalesOfficerDashboard,
       meta: { requiresAuth: true },
-      beforeEnter: (to, from, next) => {
+      beforeEnter: (to, from) => {
         const authStore = useAuthStore()
         if (authStore.isManager || authStore.isAdmin) {
-          next({ name: 'manager-dashboard' })
-        } else {
-          next()
+          return { name: 'manager-dashboard' }
         }
       }
     },
@@ -131,7 +129,7 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth) {
@@ -140,12 +138,8 @@ router.beforeEach(async (to, from, next) => {
     }
 
     if (!authStore.isAuthenticated) {
-      next('/login')
-    } else {
-      next()
+      return '/login'
     }
-  } else {
-    next()
   }
 })
 

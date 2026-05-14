@@ -1,6 +1,5 @@
 <template>
   <div class="home-page">
-    <!-- Header -->
     <header class="header">
       <div class="header-content">
         <h1 class="system-title">QMT Inventory and Sales</h1>
@@ -8,10 +7,8 @@
       </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-container">
-        <!-- Left Content -->
         <div class="hero-content">
           <h1 class="hero-title">
             Modern Inventory & Sales Management for Seamless <span class="highlight">Operations.</span>
@@ -24,7 +21,6 @@
           </button>
         </div>
 
-        <!-- Right Illustration -->
         <div class="hero-illustration">
           <img src="/main.png" alt="Inventory and Sales Illustration" class="hero-image" />
         </div>
@@ -60,7 +56,6 @@ const exploreDashboard = () => {
   font-family: 'Outfit', sans-serif;
 }
 
-/* Header - Same as Login Page */
 .header {
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
@@ -105,7 +100,6 @@ const exploreDashboard = () => {
   box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
-/* Hero Section */
 .hero-section {
   min-height: calc(vh - 64px);
   display: flex;
@@ -124,7 +118,6 @@ const exploreDashboard = () => {
   width: 100%;
 }
 
-/* Left Content */
 .hero-content {
   max-width: 600px;
   margin-left: 20px;
@@ -174,7 +167,6 @@ const exploreDashboard = () => {
   transform: translateY(0);
 }
 
-/* Right Illustration */
 .hero-illustration {
   display: flex;
   justify-content: center;
@@ -189,7 +181,6 @@ const exploreDashboard = () => {
   filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.1));
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .hero-container {
     gap: 60px;

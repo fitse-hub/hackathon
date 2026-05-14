@@ -1,6 +1,5 @@
 <template>
   <div class="login-page">
-    <!-- Header -->
     <header class="header">
       <div class="header-content">
         <h1 class="system-title">QMT Inventory and Sales</h1>
@@ -8,9 +7,7 @@
       </div>
     </header>
 
-    <!-- Main Content -->
     <div class="main-content">
-      <!-- Back to Home Link -->
       <div class="back-link">
         <router-link to="/" class="back-to-home">
           <i class="fas fa-chevron-left"></i>
@@ -18,15 +15,12 @@
         </router-link>
       </div>
 
-      <!-- Login Section -->
       <div class="login-section">
-        <!-- Form Container -->
         <div class="form-container">
           <h2 class="form-title">Sign In</h2>
           <p class="form-subtitle">Enter your email and password to sign in!</p>
 
           <form @submit.prevent="handleLogin" class="login-form">
-            <!-- Email Field -->
             <div class="form-group">
               <label for="email" class="form-label">Email*</label>
               <input
@@ -41,7 +35,6 @@
               <span v-if="errors.email" class="error-text">{{ errors.email[0] }}</span>
             </div>
 
-            <!-- Password Field -->
             <div class="form-group">
               <label for="password" class="form-label">Password*</label>
               <div class="password-wrapper">
@@ -66,12 +59,10 @@
               <span v-if="errors.password" class="error-text">{{ errors.password[0] }}</span>
             </div>
 
-            <!-- Error Message -->
             <div v-if="errorMessage" class="error-message">
               {{ errorMessage }}
             </div>
 
-            <!-- Sign In Button -->
             <button
               type="submit"
               class="signin-button"
@@ -81,14 +72,12 @@
               <span v-else>Sign In</span>
             </button>
 
-            <!-- Success Message -->
             <div v-if="successMessage" class="success-message">
               {{ successMessage }}
             </div>
           </form>
         </div>
 
-        <!-- Logo Section -->
         <div class="logo-section">
           <div class="logo-container">
             <div class="logo-wrapper">
@@ -166,7 +155,6 @@ const handleLogin = async () => {
   text-rendering: optimizeLegibility;
 }
 
-/* Header */
 .header {
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
@@ -209,7 +197,6 @@ const handleLogin = async () => {
   box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
-/* Main Content */
 .main-content {
   max-width: 1400px;
   margin: 0 auto;
@@ -241,7 +228,6 @@ const handleLogin = async () => {
   font-size: 14px;
 }
 
-/* Login Section */
 .login-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -252,7 +238,6 @@ const handleLogin = async () => {
   padding: 0;
 }
 
-/* Form Container */
 .form-container {
   max-width: 480px;
   width: 100%;
@@ -437,7 +422,6 @@ const handleLogin = async () => {
   to { transform: rotate(360deg); }
 }
 
-/* Logo Section */
 .logo-section {
   display: flex;
   justify-content: center;
@@ -490,7 +474,6 @@ const handleLogin = async () => {
   line-height: 1.3;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .login-section {
     gap: 80px;

@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class SessionController extends Controller
 {
-    /**
-     * Get session information
-     */
     public function getSessionInfo(Request $request)
     {
         return response()->json([
@@ -23,9 +20,6 @@ class SessionController extends Controller
         ]);
     }
 
-    /**
-     * Set session data
-     */
     public function setSessionData(Request $request)
     {
         $request->validate([
@@ -44,9 +38,6 @@ class SessionController extends Controller
         ]);
     }
 
-    /**
-     * Get session data by key
-     */
     public function getSessionData(Request $request, $key)
     {
         $value = $request->session()->get($key);
@@ -60,9 +51,6 @@ class SessionController extends Controller
         ]);
     }
 
-    /**
-     * Clear session data
-     */
     public function clearSession(Request $request)
     {
         $sessionId = $request->session()->getId();
@@ -76,9 +64,6 @@ class SessionController extends Controller
         ]);
     }
 
-    /**
-     * Get active sessions count
-     */
     public function getActiveSessions()
     {
         $activeSessionsCount = DB::table('sessions')
@@ -96,9 +81,6 @@ class SessionController extends Controller
         ]);
     }
 
-    /**
-     * Clean expired sessions
-     */
     public function cleanExpiredSessions()
     {
         $expiredCount = DB::table('sessions')
