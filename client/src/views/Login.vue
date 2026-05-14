@@ -92,11 +92,11 @@
         <div class="logo-section">
           <div class="logo-container">
             <div class="logo-wrapper">
-              <img src="/logo2.jpg" alt="QMT Inventory and Sales Logo" class="company-logo" />
+              <img src="/logo2.jpg" alt="Qelem Meda Technologies Logo" class="company-logo" />
             </div>
             <div class="company-info">
               <p class="amharic-text">ቀለም ሜዳ ቴክኖሎጂስ</p>
-              <p class="english-text">QMT Inventory and Sales</p>
+              <p class="english-text">Qelem Meda Technologies</p>
             </div>
           </div>
         </div>
