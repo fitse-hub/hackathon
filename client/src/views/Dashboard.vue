@@ -238,14 +238,9 @@ const formatPermission = (permission) => {
   color: #2b6cb0;
 }
 
-.user-role.moderator {
+.user-role.sales_officer {
   background: #d6f5d6;
   color: #22543d;
-}
-
-.user-role.user {
-  background: #e2e8f0;
-  color: #4a5568;
 }
 
 .logout-btn {

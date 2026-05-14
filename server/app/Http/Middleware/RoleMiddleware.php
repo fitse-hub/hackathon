@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
@@ -12,26 +11,32 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
+     * Usage in routes:  ->middleware('role:manager')
+     *                   ->middleware('role:manager,sales_officer')
+     *
      * @param  Closure(Request): (Response)  $next
-     * @param  string  ...$roles
+     * @param  string  ...$roles  One or more allowed roles.
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!Auth::check()) {
+        $user = $request->user();
+
+        // Must be authenticated (Sanctum guard should have already caught this,
+        // but we keep a safety check).
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication required'
+                'message' => 'Authentication required',
             ], 401);
         }
 
-        $user = Auth::user();
-        
-        if (!in_array($user->role, $roles)) {
+        // Check if the user's role is among the allowed roles.
+        if (! in_array($user->role, $roles, true)) {
             return response()->json([
-                'success' => false,
-                'message' => 'Insufficient permissions. Required roles: ' . implode(', ', $roles),
-                'user_role' => $user->role,
-                'required_roles' => $roles
+                'success'        => false,
+                'message'        => 'Access denied. Insufficient permissions.',
+                'your_role'      => $user->role,
+                'required_roles' => $roles,
             ], 403);
         }
 

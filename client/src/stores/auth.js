@@ -10,7 +10,6 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   getters: {
-    isAdmin: (state) => state.user?.role === 'admin',
     isManager: (state) => state.user?.role === 'manager',
     isSalesOfficer: (state) => state.user?.role === 'sales_officer',
     
@@ -29,26 +28,11 @@ export const useAuthStore = defineStore('auth', {
           this.user = response.data.user
           this.permissions = response.data.permissions
           this.isAuthenticated = true
-        }
-        
-        return response.data
-      } catch (error) {
-        this.clearAuth()
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async register(userData) {
-      this.loading = true
-      try {
-        const response = await axios.post('/api/auth/register', userData)
-        
-        if (response.data.success) {
-          this.user = response.data.user
-          this.permissions = response.data.permissions
-          this.isAuthenticated = true
+          
+          // Store the token in localStorage
+          if (response.data.token) {
+            localStorage.setItem('auth_token', response.data.token)
+          }
         }
         
         return response.data
@@ -74,6 +58,12 @@ export const useAuthStore = defineStore('auth', {
 
     async checkAuth() {
       try {
+        const token = localStorage.getItem('auth_token')
+        if (!token) {
+          this.clearAuth()
+          return
+        }
+        
         const response = await axios.get('/api/auth/me')
         
         if (response.data.success) {
@@ -92,6 +82,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.permissions = null
       this.isAuthenticated = false
+      localStorage.removeItem('auth_token')
     }
   }
 })
