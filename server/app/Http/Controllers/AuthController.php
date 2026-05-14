@@ -3,21 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    // ─────────────────────────────────────────────────────────────────
+    //  POST /api/login
+    // ─────────────────────────────────────────────────────────────────
     /**
-     * Login user
+     * Authenticate a user and return a Sanctum bearer token.
      */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
+        // --- validate -----------------------------------------------------------
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email'    => 'required|string|email',
             'password' => 'required|string|min:6',
         ]);
 
@@ -25,176 +29,128 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
-        $credentials = $request->only('email', 'password');
+        // --- attempt ------------------------------------------------------------
+        $user = User::where('email', $request->email)->first();
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $request->session()->regenerate();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Login successful',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                ],
-                'permissions' => $this->getUserPermissions($user->role),
-                'session_id' => $request->session()->getId()
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid credentials'
-        ], 401);
-    }
-
-    /**
-     * Register new user
-     */
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|string|in:admin,user,manager,moderator',
-        ]);
-
-        if ($validator->fails()) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
-
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration successful',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-            ],
-            'permissions' => $this->getUserPermissions($user->role),
-            'session_id' => $request->session()->getId()
-        ], 201);
-    }
-
-    /**
-     * Logout user
-     */
-    public function logout(Request $request)
-    {
-        $sessionId = $request->session()->getId();
-        
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout successful',
-            'previous_session_id' => $sessionId
-        ]);
-    }
-
-    /**
-     * Get current user info
-     */
-    public function me(Request $request)
-    {
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Not authenticated'
+                'message' => 'Invalid credentials. Please check your email and password.',
             ], 401);
         }
 
-        $user = Auth::user();
+        // --- issue token --------------------------------------------------------
+        // Revoke any previous tokens so only one active session exists at a time.
+        $user->tokens()->delete();
+
+        $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
-            'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-            ],
-            'permissions' => $this->getUserPermissions($user->role),
-            'session_id' => $request->session()->getId()
+            'success'     => true,
+            'message'     => 'Login successful',
+            'user'        => $this->formatUser($user),
+            'permissions' => $this->getPermissions($user->role),
+            'token'       => $token,
+            'token_type'  => 'Bearer',
         ]);
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    //  POST /api/logout
+    // ─────────────────────────────────────────────────────────────────
     /**
-     * Get user permissions based on role
+     * Revoke the current access token (log out).
      */
-    private function getUserPermissions($role)
+    public function logout(Request $request): JsonResponse
     {
-        $permissions = [
-            'admin' => [
-                'can_manage_users' => true,
-                'can_manage_content' => true,
-                'can_view_analytics' => true,
+        // Delete the token that was used for this request.
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully',
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  GET /api/me
+    // ─────────────────────────────────────────────────────────────────
+    /**
+     * Return the currently authenticated user's profile.
+     */
+    public function me(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'success'     => true,
+            'user'        => $this->formatUser($user),
+            'permissions' => $this->getPermissions($user->role),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  GET /api/roles  (public)
+    // ─────────────────────────────────────────────────────────────────
+    /**
+     * Return the list of available roles.
+     */
+    public function getRoles(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'roles'   => User::getRoles(),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  Helpers
+    // ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Format a user for JSON output.
+     */
+    private function formatUser(User $user): array
+    {
+        return [
+            'id'    => $user->id,
+            'name'  => $user->name,
+            'email' => $user->email,
+            'role'  => $user->role,
+        ];
+    }
+
+    /**
+     * Build the permissions map for a given role.
+     *
+     * Manager     → full access
+     * Sales Officer → can create sales, cannot approve, cannot manage users
+     */
+    private function getPermissions(string $role): array
+    {
+        $map = [
+            User::ROLE_MANAGER => [
+                'can_manage_users'  => true,
+                'can_create_sales'  => true,
+                'can_approve_sales' => true,
+                'can_view_reports'  => true,
                 'can_manage_settings' => true,
-                'can_delete_content' => true,
-                'can_moderate' => true,
+                'full_access'       => true,
             ],
-            'manager' => [
-                'can_manage_users' => false,
-                'can_manage_content' => true,
-                'can_view_analytics' => true,
+            User::ROLE_SALES_OFFICER => [
+                'can_manage_users'  => false,
+                'can_create_sales'  => true,
+                'can_approve_sales' => false,
+                'can_view_reports'  => false,
                 'can_manage_settings' => false,
-                'can_delete_content' => true,
-                'can_moderate' => true,
-            ],
-            'moderator' => [
-                'can_manage_users' => false,
-                'can_manage_content' => true,
-                'can_view_analytics' => false,
-                'can_manage_settings' => false,
-                'can_delete_content' => false,
-                'can_moderate' => true,
-            ],
-            'user' => [
-                'can_manage_users' => false,
-                'can_manage_content' => false,
-                'can_view_analytics' => false,
-                'can_manage_settings' => false,
-                'can_delete_content' => false,
-                'can_moderate' => false,
+                'full_access'       => false,
             ],
         ];
 
-        return $permissions[$role] ?? $permissions['user'];
-    }
-
-    /**
-     * Get all available roles
-     */
-    public function getRoles()
-    {
-        return response()->json([
-            'success' => true,
-            'roles' => User::getRoles()
-        ]);
+        return $map[$role] ?? $map[User::ROLE_SALES_OFFICER];
     }
 }

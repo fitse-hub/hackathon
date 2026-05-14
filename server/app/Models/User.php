@@ -2,26 +2,42 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    // Define available roles
-    const ROLE_ADMIN = 'admin';
-    const ROLE_USER = 'user';
-    const ROLE_MANAGER = 'manager';
-    const ROLE_MODERATOR = 'moderator';
+    // ── Phase 1 Roles ───────────────────────────────────────────────
+    const ROLE_MANAGER       = 'manager';
+    const ROLE_SALES_OFFICER = 'sales_officer';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -32,28 +48,22 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 
+    // ── Role Helpers ────────────────────────────────────────────────
+
     /**
-     * Check if user has a specific role
+     * Check if user has a specific role.
      */
-    public function hasRole($role): bool
+    public function hasRole(string $role): bool
     {
         return $this->role === $role;
     }
 
     /**
-     * Check if user is admin
-     */
-    public function isAdmin(): bool
-    {
-        return $this->hasRole(self::ROLE_ADMIN);
-    }
-
-    /**
-     * Check if user is manager
+     * Check if user is a manager.
      */
     public function isManager(): bool
     {
@@ -61,23 +71,33 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is moderator
+     * Check if user is a sales officer.
      */
-    public function isModerator(): bool
+    public function isSalesOfficer(): bool
     {
-        return $this->hasRole(self::ROLE_MODERATOR);
+        return $this->hasRole(self::ROLE_SALES_OFFICER);
     }
 
     /**
-     * Get all available roles
+     * Get all available roles.
+     *
+     * @return array<string, string>
      */
     public static function getRoles(): array
     {
         return [
-            self::ROLE_ADMIN => 'Administrator',
-            self::ROLE_MANAGER => 'Manager',
-            self::ROLE_MODERATOR => 'Moderator',
-            self::ROLE_USER => 'User',
+            self::ROLE_MANAGER       => 'Manager',
+            self::ROLE_SALES_OFFICER => 'Sales Officer',
         ];
+    }
+
+    /**
+     * Get the valid role values (for validation rules).
+     *
+     * @return array<int, string>
+     */
+    public static function getValidRoles(): array
+    {
+        return array_keys(self::getRoles());
     }
 }

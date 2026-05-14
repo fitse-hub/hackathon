@@ -9,49 +9,36 @@ use Illuminate\Support\Facades\Hash;
 class DemoUsersSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Seed demo users for Phase 1.
+     *
+     * Roles: manager, sales_officer — nothing else.
      */
     public function run(): void
     {
-        $demoUsers = [
+        $users = [
             [
-                'name' => 'Admin Demo',
-                'email' => 'admin@demo.com',
+                'name'     => 'Abebe Kebede',
+                'email'    => 'manager@fitse.com',
                 'password' => Hash::make('password123'),
-                'role' => 'admin',
+                'role'     => 'manager',
             ],
             [
-                'name' => 'Manager Demo',
-                'email' => 'manager@demo.com',
+                'name'     => 'Chaltu Tadesse',
+                'email'    => 'sales@fitse.com',
                 'password' => Hash::make('password123'),
-                'role' => 'manager',
-            ],
-            [
-                'name' => 'Moderator Demo',
-                'email' => 'moderator@demo.com',
-                'password' => Hash::make('password123'),
-                'role' => 'moderator',
-            ],
-            [
-                'name' => 'User Demo',
-                'email' => 'user@demo.com',
-                'password' => Hash::make('password123'),
-                'role' => 'user',
+                'role'     => 'sales_officer',
             ],
         ];
 
-        foreach ($demoUsers as $userData) {
+        foreach ($users as $data) {
             User::updateOrCreate(
-                ['email' => $userData['email']],
-                $userData
+                ['email' => $data['email']],
+                $data
             );
         }
 
-        $this->command->info('Demo users created successfully!');
-        $this->command->info('Login credentials:');
-        $this->command->info('Admin: admin@demo.com / password123');
-        $this->command->info('Manager: manager@demo.com / password123');
-        $this->command->info('Moderator: moderator@demo.com / password123');
-        $this->command->info('User: user@demo.com / password123');
+        $this->command->info('✅  Demo users (manager + sales_officer) created.');
+        $this->command->info('  Manager:        manager@fitse.com / password123');
+        $this->command->info('  Sales Officer:  sales@fitse.com   / password123');
     }
 }
