@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
 import Dashboard from '../views/Dashboard.vue'
 
 const router = createRouter({
@@ -11,20 +10,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: Home,
-      meta: { requiresAuth: false }
+      component: Home
     },
     {
       path: '/login',
       name: 'login',
-      component: Login,
-      meta: { requiresAuth: false, guestOnly: true }
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: Register,
-      meta: { requiresAuth: false, guestOnly: true }
+      component: Login
     },
     {
       path: '/dashboard',
@@ -35,22 +26,19 @@ const router = createRouter({
   ],
 })
 
-// Navigation guard
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // Check authentication status
-  await authStore.checkAuth()
-  
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const guestOnly = to.matched.some(record => record.meta.guestOnly)
-  
-  if (requiresAuth && !authStore.isAuthenticated) {
-    // Redirect to login if authentication is required but user is not authenticated
-    next('/login')
-  } else if (guestOnly && authStore.isAuthenticated) {
-    // Redirect to dashboard if user is authenticated but trying to access guest-only pages
-    next('/dashboard')
+  if (to.meta.requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      await authStore.checkAuth()
+    }
+    
+    if (!authStore.isAuthenticated) {
+      next('/login')
+    } else {
+      next()
+    }
   } else {
     next()
   }

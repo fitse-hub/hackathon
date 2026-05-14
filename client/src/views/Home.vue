@@ -35,18 +35,13 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const exploreDashboard = () => {
-  // Check if user is authenticated
-  const isAuthenticated = localStorage.getItem('isAuthenticated')
-  
-  if (isAuthenticated === 'true') {
-    router.push('/dashboard')
-  } else {
-    router.push('/login')
-  }
+  router.push(authStore.isAuthenticated ? '/dashboard' : '/login')
 }
 </script>
 
