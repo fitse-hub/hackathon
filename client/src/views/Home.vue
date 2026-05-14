@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="header">
       <div class="header-content">
-        <h1 class="system-title">Qelemeda Payroll System</h1>
+        <h1 class="system-title">QMT Inventory and Sales</h1>
         <router-link to="/login" class="login-btn-header">Login</router-link>
       </div>
     </header>
@@ -14,10 +14,10 @@
         <!-- Left Content -->
         <div class="hero-content">
           <h1 class="hero-title">
-            Modernized Payroll System for Seamless <span class="highlight">Process.</span>
+            Modern Inventory & Sales Management for Seamless <span class="highlight">Operations.</span>
           </h1>
           <p class="hero-subtitle">
-            Platform with digital solution that is robust, secure and scalable
+            A robust, secure, and scalable platform for inventory and sales management.
           </p>
           <button class="explore-btn" @click="exploreDashboard">
             Explore Dashboard
@@ -26,7 +26,7 @@
 
         <!-- Right Illustration -->
         <div class="hero-illustration">
-          <img src="/hero-illustration.png" alt="Payroll System Illustration" class="hero-image" />
+          <img src="/main.png" alt="Inventory and Sales Illustration" class="hero-image" />
         </div>
       </div>
     </section>
@@ -192,16 +192,6 @@ const exploreDashboard = () => {
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.1));
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
 }
 
 /* Responsive Design */

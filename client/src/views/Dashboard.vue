@@ -3,7 +3,7 @@
     <header class="dashboard-header">
       <div class="header-content">
         <div class="logo-section">
-          <img src="/logo.jpg" alt="Logo" class="logo" />
+          <img src="/logo2.jpg" alt="Logo" class="logo" />
           <h1>Dashboard</h1>
         </div>
         <div class="user-section">

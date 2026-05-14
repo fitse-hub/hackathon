@@ -3,7 +3,7 @@
     <div class="register-card">
       <!-- Logo Section -->
       <div class="logo-section">
-        <img src="/logo.jpg" alt="Logo" class="logo" />
+        <img src="/logo2.jpg" alt="Logo" class="logo" />
         <h1 class="app-title">Create Account</h1>
         <p class="app-subtitle">Join us today</p>
       </div>
