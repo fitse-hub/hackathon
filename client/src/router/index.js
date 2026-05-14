@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
-import Dashboard from '../views/Dashboard.vue'
+import Register from '../views/Register.vue'
+import SalesOfficerDashboard from '../views/SalesOfficer/SalesOfficerDashboard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,7 +21,7 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard,
+      component: SalesOfficerDashboard,
       meta: { requiresAuth: true }
     }
   ],
@@ -28,12 +29,12 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
       await authStore.checkAuth()
     }
-    
+
     if (!authStore.isAuthenticated) {
       next('/login')
     } else {
