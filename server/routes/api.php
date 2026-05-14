@@ -21,14 +21,14 @@ use App\Http\Controllers\AuthController;
 */
 
 // ── Public ──────────────────────────────────────────────────────────────
-Route::post('/login',  [AuthController::class, 'login']);
-Route::get('/roles',   [AuthController::class, 'getRoles']);
+Route::post('/auth/login',    [AuthController::class, 'login']);
+Route::get('/roles',          [AuthController::class, 'getRoles']);
 
 // ── Authenticated (any role) ────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me',      [AuthController::class, 'me']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/me',      [AuthController::class, 'me']);
 
     // ── Manager-only routes ─────────────────────────────────────────
     Route::middleware('role:manager')->prefix('manager')->group(function () {

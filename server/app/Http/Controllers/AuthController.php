@@ -60,7 +60,7 @@ class AuthController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────
-    //  POST /api/logout
+    //  POST /api/auth/logout
     // ─────────────────────────────────────────────────────────────────
     /**
      * Revoke the current access token (log out).
